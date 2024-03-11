@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using HandlebarsDotNet.Collections;
 using HandlebarsDotNet.Extension.Json;
 using HandlebarsDotNet.Helpers;
@@ -35,6 +37,10 @@ namespace HandlebarsDotNet.Extension.Test
         [InlineData("\"8C82D441-EE53-47C6-9400-3B5045A4DF71\"")]
         public void ValueTypes(string value)
         {
+            // Test workaround for OS with different default culture
+            // Consider adding an overload to DoubleFormatter that accepts a culture
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            
             var model = JsonDocument.Parse("{ \"value\": " + value + " }");
 
             var source = "{{this.value}}";
@@ -45,7 +51,7 @@ namespace HandlebarsDotNet.Extension.Test
             var template = handlebars.Compile(source);
 
             var output = template(model).ToUpper();
-
+            
             Assert.Equal(value.Trim('"'), output);
         }
 
